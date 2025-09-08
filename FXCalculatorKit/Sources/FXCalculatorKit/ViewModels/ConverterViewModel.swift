@@ -114,6 +114,7 @@ public final class ConverterViewModel: ObservableObject {
     // format numbers
     private static func format(_ value: Double) -> String {
         let f = NumberFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
         f.minimumFractionDigits = 2
         f.maximumFractionDigits = 2
         f.numberStyle = .decimal

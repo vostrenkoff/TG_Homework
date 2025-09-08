@@ -17,36 +17,5 @@
             location = "group:TGCalculatorUITests.swift">
          </FileRef>
       </Group>
-      <Group
-         location = "group:TGCalculator"
-         name = "TGCalculator">
-         <FileSystemSynchronizedGroup
-            location = "group:Components"
-            name = "Components">
-         </FileSystemSynchronizedGroup>
-         <FileSystemSynchronizedGroup
-            location = "group:Screens"
-            name = "Screens">
-         </FileSystemSynchronizedGroup>
-         <FileRef
-            location = "group:TGCalculator.entitlements">
-         </FileRef>
-         <FileRef
-            location = "group:Assets.xcassets">
-         </FileRef>
-         <FileRef
-            location = "group:TGCalculatorApp.swift">
-         </FileRef>
-         <FileRef
-            location = "group:ContentView.swift">
-         </FileRef>
-      </Group>
-      <Group
-         location = "group:TGCalculatorTests"
-         name = "TGCalculatorTests">
-         <FileRef
-            location = "group:TGCalculatorTests.swift">
-         </FileRef>
-      </Group>
    </Group>
 </Workspace>
