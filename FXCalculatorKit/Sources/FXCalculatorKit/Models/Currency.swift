@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Currency: Hashable, Identifiable, Codable {
+public struct Currency: Hashable, Identifiable, Codable, Sendable {
     public let country: String
     public let code: String
     public let name: String

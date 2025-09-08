@@ -7,6 +7,34 @@
 
 import Foundation
 
+private struct AnyDouble: Decodable {
+    let value: Double
+    init(from decoder: Decoder) throws {
+        let c = try decoder.singleValueContainer()
+        if let d = try? c.decode(Double.self) {
+            value = d
+        } else {
+            let s = try c.decode(String.self)
+            let normalized = s.replacingOccurrences(of: ",", with: ".")
+            guard let v = Double(normalized) else {
+                throw DecodingError.dataCorruptedError(in: c, debugDescription: "Cannot parse double from \(s)")
+            }
+            value = v
+        }
+    }
+}
+
+// raw response covering all known key variants
+private struct FXRatesRaw: Decodable {
+    let from: String
+    let to: String
+    
+    let rate: AnyDouble?
+    let amount: AnyDouble?
+    let result: AnyDouble?
+    let fromAmount: AnyDouble?
+    let toAmount: AnyDouble?
+}
 
 public final class TransferGoFXRatesService: FXRatesAPI {
     private let session: URLSession
@@ -47,9 +75,36 @@ public final class TransferGoFXRatesService: FXRatesAPI {
 
         // get JSON
         do {
-            let d = try JSONDecoder().decode(FXRatesAPIResponse.self, from: data)
-            return FXQuote(from: d.from, to: d.to, amount: d.amount, converted: d.result, rate: d.rate)
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+            // Try single object first
+            if let raw = try? decoder.decode(FXRatesRaw.self, from: data) {
+                let rate = raw.rate?.value ?? 0
+                let amt = raw.amount?.value ?? raw.fromAmount?.value ?? amount
+                let converted = raw.result?.value ?? raw.toAmount?.value ?? (rate > 0 ? amt * rate : 0)
+                return FXQuote(from: raw.from, to: raw.to, amount: amt, converted: converted, rate: rate)
+            }
+            // Try array, take the first item
+            if let arr = try? decoder.decode([FXRatesRaw].self, from: data), let raw = arr.first {
+                let rate = raw.rate?.value ?? 0
+                let amt = raw.amount?.value ?? raw.fromAmount?.value ?? amount
+                let converted = raw.result?.value ?? raw.toAmount?.value ?? (rate > 0 ? amt * rate : 0)
+                return FXQuote(from: raw.from, to: raw.to, amount: amt, converted: converted, rate: rate)
+            }
+
+            #if DEBUG
+            if let rawStr = String(data: data, encoding: .utf8) {
+                print("[FX] Decoding failed. Raw payload: \(rawStr)")
+            }
+            #endif
+            throw FXAPIError.decoding
         } catch {
+            #if DEBUG
+            if let rawStr = String(data: data, encoding: .utf8) {
+                print("[FX] Decoding error: \(error). Raw payload: \(rawStr)")
+            }
+            #endif
             throw FXAPIError.decoding
         }
     }

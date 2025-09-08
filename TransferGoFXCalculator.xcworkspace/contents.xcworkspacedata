@@ -20,6 +20,14 @@
       <Group
          location = "group:TGCalculator"
          name = "TGCalculator">
+         <FileSystemSynchronizedGroup
+            location = "group:Components"
+            name = "Components">
+         </FileSystemSynchronizedGroup>
+         <FileSystemSynchronizedGroup
+            location = "group:Screens"
+            name = "Screens">
+         </FileSystemSynchronizedGroup>
          <FileRef
             location = "group:TGCalculator.entitlements">
          </FileRef>

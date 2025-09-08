@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct FXQuote: Codable, Equatable {
+public struct FXQuote: Codable, Equatable, Sendable {
     public let from: String
     public let to: String
     public let amount: Double
@@ -16,7 +16,7 @@ public struct FXQuote: Codable, Equatable {
     public let rate: Double
 }
 
-public struct FXRatesAPIResponse: Codable {
+public struct FXRatesAPIResponse: Codable, Sendable {
     public let from: String
     public let to: String
     public let amount: Double

@@ -6,11 +6,17 @@
 //
 
 import SwiftUI
+import FXCalculatorKit
 
 struct ContentView: View {
+    @StateObject private var vm = ConverterViewModel(api: TransferGoFXRatesService())
+
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        NavigationStack {
+            ConverterScreen(vm: vm)
+                .navigationTitle("Calculator")
+        }
+        .onAppear { vm.onAppear() }
     }
 }
 
