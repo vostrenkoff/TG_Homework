@@ -12,8 +12,8 @@ public enum FocusField: Hashable { case send, receive, none }
 
 @MainActor
 public final class ConverterViewModel: ObservableObject {
-    @Published public var from: Currency
-    @Published public var to: Currency
+    @Published public var from: Currency { didSet { Task { await recalcFromSend() } } }
+    @Published public var to:   Currency { didSet { Task { await recalcFromSend() } } }
     
     @Published public var sendAmount: String
     @Published public var receiveAmount: String
