@@ -1,8 +1,10 @@
-# FXCalculatorKit
+# TransferGoFXCalculator (FXCalculatorKit + TGCalculator)
 
 FXCalculatorKit is a Swift package for currency conversion with support for live exchange rates and unit testing.  
 It demonstrates MVVM architecture, async/await APIs, and includes test coverage with `XCTest`.  
 This project was built as part of an offline coding assignment for TransferGo.
+
+TGCalculator is a iOS-demo app used for demonstration of FXCalculatorKit capabilities.
 
 ---
 
