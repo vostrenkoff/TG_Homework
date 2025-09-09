@@ -9,51 +9,198 @@
 import SwiftUI
 import FXCalculatorKit
 
+
+private struct RateBadge: View {
+    let text: String
+    var body: some View {
+        Text(text)
+            .font(.system(size: 12, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(Color.black.opacity(0.9)))
+            .frame(height: 18)
+    }
+}
+
+private struct NetworkBanner: View {
+    var title: String
+    var subtitle: String
+    var onClose: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            ZStack {
+                Circle().fill(Color("TGerrorRed")).frame(width: 32, height: 32)
+                Image(systemName: "xmark")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color(UIColor(named: "Label") ?? .label))
+                Text(subtitle)
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.gray)
+            }.offset(y: -12)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.systemBackground))
+        )
+        .shadow(color: .black.opacity(0.18), radius: 16, x: 0, y: 6)
+    }
+}
+
 struct ConverterScreen: View {
     @ObservedObject var vm: ConverterViewModel
     @State private var searchFrom = ""
     @State private var searchTo = ""
     @FocusState private var focus: FocusField?
+    @State private var showOfflineBanner = false
 
     var body: some View {
-        VStack(spacing: 16) {
-            GroupBox {
-                HStack {
-                    CurrencyMenu(selected: $vm.from, query: $searchFrom, all: vm.currencies)
-                    Spacer()
-                    AmountField(title: "Send", text: $vm.sendAmount) { newValue in
-                        if focus == .send {
-                            vm.updateSend(newValue)     // fixed - updates only when user types
-                        }
-                    }
-                    .focused($focus, equals: .send)
+        VStack {
+            let sendOverLimit = (vm.errorText?.contains("Max for") ?? false)
+            let outlineShape = RoundedRectangle(cornerRadius: 16).inset(by: 0.5)
+            ZStack {
+                // react to errorText changes for offline
+            }
+            .onChange(of: vm.errorText) { newValue in
+                let offline = newValue?.localizedCaseInsensitiveContains("offline") ?? false
+                if offline {
+                    withAnimation(.spring()) { showOfflineBanner = true }
                 }
             }
-            HStack {
-                Text(vm.rateText).font(.headline)
+            ZStack {
+                VStack(spacing: 16) {
+                VStack(spacing: 0) {
+                    HStack(alignment: .center) {
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Sending from")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(.secondary)
+                                
+                                CurrencyMenu(selected: $vm.from, query: $searchFrom, all: vm.currencies)
+                            }
+                            Spacer()
+                            AmountField(
+                                text: $vm.sendAmount,
+                                isSend: true,
+                                overrideColor: sendOverLimit ? Color("TGerrorRed") : nil
+                            ) { newValue in
+                                if focus == .send { vm.updateSend(newValue) }
+                            }
+                            .focused($focus, equals: .send)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 92, maxHeight: 92)
+                        .padding(.horizontal, 12)
+                        .frame(height: 92)
+                        
+                    }
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        outlineShape
+                            .stroke(Color("TGerrorRed"), lineWidth: 2)
+                            .opacity(sendOverLimit ? 1 : 0)
+                    )
+                    .shadow(color: .black.opacity(0.18), radius: 6, x: 0, y: 0)
+                    HStack(alignment: .center) {
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Receiver gets")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(.secondary)
+                                
+                                
+                                
+                                CurrencyMenu(selected: $vm.to, query: $searchTo, all: vm.currencies)
+                            }
+                            Spacer()
+                            AmountField(
+                                text: $vm.receiveAmount,
+                                onChange: { newValue in
+                                    if focus == .receive { vm.updateReceive(newValue) }
+                                }
+                            )
+                            .focused($focus, equals: .receive)
+                        }.frame(maxWidth: .infinity, minHeight: 92, maxHeight: 92)
+                            .padding(.horizontal, 12)
+                            .frame(height: 92)
+                    }
+
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .padding(.top, 0)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(.systemGray6))
+                )
+                .padding(.horizontal, 20)
+                .overlay(alignment: .center) {
+                    ZStack {
+                        RateBadge(text: vm.rateText)
+                            .allowsHitTesting(false)
+                            .zIndex(1)
+
+                        Button {
+                            vm.swap()
+                        } label: {
+                            Image(systemName: "arrow.up.arrow.down")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(Color("TGblue")))
+                        }
+                        .buttonStyle(.plain)
+                        .offset(x: -124)
+                    }
+                }
+
+                if let e = vm.errorText {
+                    HStack(alignment: .center, spacing: 8) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundColor(Color("TGerrorRed"))
+
+                        Text(e)
+                            .font(.system(size: 16))
+                            .foregroundColor(Color("TGerrorRed"))
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color("TGerrorRed").opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .padding(.horizontal, 20)
+                }
                 Spacer()
-                Button { vm.swap() } label: {
-                    Image(systemName: "arrow.up.arrow.down")
-                        .imageScale(.large)
-                        .rotationEffect(.degrees(90))
-                        .padding(8)
-                }.buttonStyle(.bordered)
             }
-            GroupBox {
-                HStack {
-                    CurrencyMenu(selected: $vm.to, query: $searchTo, all: vm.currencies)
-                    Spacer()
-                    AmountField(title: "Receive", text: $vm.receiveAmount) { newValue in
-                        if focus == .receive {
-                            vm.updateReceive(newValue)      // fixed - updates only when user types
-                        }
+                // No internet banner
+                VStack {
+                    if showOfflineBanner {
+                        NetworkBanner(
+                            title: "No network",
+                            subtitle: "Check your internet connection",
+                            onClose: { withAnimation(.spring()) { showOfflineBanner = false } }
+                        )
+                        .padding(.horizontal, 16)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(2)
                     }
-                    .focused($focus, equals: .receive)
+                    Spacer(minLength: 0)
                 }
+                .padding(.top, -20)
             }
-            if let e = vm.errorText { Text(e).foregroundStyle(.red) }
-            Spacer()
         }
-        .padding(20)
+        .padding(.top, 30)
     }
 }

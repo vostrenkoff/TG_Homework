@@ -14,6 +14,16 @@ public struct FXQuote: Codable, Equatable, Sendable {
     public let amount: Double
     public let converted: Double
     public let rate: Double
+    
+    
+//    DEBUG
+//    public init(from: String, to: String, amount: Double, converted: Double, rate: Double) {
+//        self.from = from
+//        self.to = to
+//        self.amount = amount
+//        self.converted = converted
+//        self.rate = rate
+//    }
 }
 
 public struct FXRatesAPIResponse: Codable, Sendable {

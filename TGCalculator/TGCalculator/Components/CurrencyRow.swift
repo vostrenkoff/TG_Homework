@@ -9,6 +9,22 @@
 import SwiftUI
 import FXCalculatorKit
 
+private struct FlagView: View {
+    let code: String
+    var size: CGFloat = 32
+
+    var body: some View {
+        Image("flag_\(code)")
+            .resizable()
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .stroke(.quaternary, lineWidth: 0.5)
+            )
+    }
+}
 struct CurrencyRow: View {
     let currency: Currency
     let isSelected: Bool

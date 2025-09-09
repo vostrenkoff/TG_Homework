@@ -28,7 +28,7 @@ public final class ConverterViewModel: ObservableObject {
 
     // dependencies
     private nonisolated(unsafe) let api: FXRatesAPI            // real api or mock
-    private var debounceTask: Task<Void, Never>?   // prevent spamming API too often
+    private var debounceTask: Task<Void, Never>?               // prevent spamming API too often
 
     // default state settings
     public init(api: FXRatesAPI,

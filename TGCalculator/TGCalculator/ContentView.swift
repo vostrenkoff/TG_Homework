@@ -14,7 +14,6 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ConverterScreen(vm: vm)
-                .navigationTitle("Calculator")
         }
         .onAppear { vm.onAppear() }
     }

@@ -23,9 +23,9 @@ public struct Currency: Hashable, Identifiable, Codable, Sendable {
 
 public enum SupportedCurrencies {
     public static let all: [Currency] = [
-        .init(country: "Poland",        code: "PLN", name: "Polish Zloty"),
+        .init(country: "Poland",        code: "PLN", name: "Polish zloty"),
         .init(country: "Germany",       code: "EUR", name: "Euro"),
-        .init(country: "Great Britain", code: "GBP", name: "Pound Sterling"),
-        .init(country: "Ukraine",       code: "UAH", name: "Hryvnia")
+        .init(country: "Great Britain", code: "GBP", name: "British Pound"),
+        .init(country: "Ukraine",       code: "UAH", name: "Hrivna")
     ]
 }
