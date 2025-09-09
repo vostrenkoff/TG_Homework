@@ -34,7 +34,7 @@ public struct CurrencyPill: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .frame(width: 88, height: 32, alignment: .leading) // фикс 88×32
+        .frame(width: 88, height: 32, alignment: .leading)
         .contentShape(Rectangle())
         .allowsHitTesting(true)
 
